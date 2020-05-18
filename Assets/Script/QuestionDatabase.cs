@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuestionDatabase : MonoBehaviour
 {
@@ -21,24 +22,13 @@ public class QuestionDatabase : MonoBehaviour
 
     public void NextQuestion()
     {
-            UI.correctPanel.SetActive(false);
-            UI.answerInputField.text = "";
-            index++;
-            UI.UpdateQuestionText(index);
+        UI.answerInputField.text = "";
+        index++;
+        UI.UpdateQuestionText(index);
     }
 
-    public void CheckAnswer()
+    public void OnSubmitButton()
     {
-        if (UI.answerInputField.text == questions[index].answer)
-            UI.correctPanel.SetActive(true);
-        else
-            StartCoroutine(WrongPanelRoutine());
-    }
-
-    IEnumerator WrongPanelRoutine()
-    {
-        UI.wrongPanel.SetActive(true);
-        yield return new WaitForSeconds(3.0f);
-        UI.wrongPanel.SetActive(false);
+        SceneManager.LoadScene("AverageScene");
     }
 }

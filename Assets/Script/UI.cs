@@ -3,24 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class UI : MonoBehaviour
 {
     [SerializeField]
-    TextMeshProUGUI questionText;
+    TextMeshProUGUI questionText = null;
     [SerializeField]
-    public TMP_InputField answerInputField;
+    public TMP_InputField answerInputField = null;
     [SerializeField]
-    public GameObject wrongPanel;
+    public GameObject completePanel = null;
     [SerializeField]
-    public GameObject correctPanel;
-    [SerializeField]
-    public GameObject completePanel;
-    [SerializeField]
-    QuestionDatabase questionDatabase;
+    QuestionDatabase questionDatabase = null;
 
     public void UpdateQuestionText(int questionIndex)
     {
         questionText.text = questionDatabase.questions[questionIndex].question;
+    }
+
+    public void OnStartButton()
+    {
+        SceneManager.LoadScene("GameScene");
+    }
+
+    public void OnBackButton()
+    {
+        SceneManager.LoadScene("IntroScene");
+    }
+
+    public void OnMoreInfoButton()
+    {
+        //SceneManager.LoadScene();
     }
 }
