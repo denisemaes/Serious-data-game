@@ -2,19 +2,17 @@
 using System;
 using System.Data;
 using System.Text;
-using Model;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-//using Dapper;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using TMPro;
 
 public class DatabaseHandler : MonoBehaviour
 {
-	private string connectionString = "Server=localhost;Database=aceddwh;Uid=root;Pwd=admin;pooling=true;Charset=utf8;port=3306";
+	private string connectionString = "server=localhost;port=3306;database=Aceddwh;user=ACEDuser;password=Hxq3zK81Qwp!;CharSet=utf8;Connection Timeout=60";
 	private MySqlConnection con = null;
 	private MySqlCommand cmd = null;
 	private MySqlDataReader rdr = null;
@@ -22,110 +20,74 @@ public class DatabaseHandler : MonoBehaviour
 	[SerializeField]
 	private TextMeshProUGUI autocorrectText;
 	[SerializeField]
-	private TMP_InputField answerInput;
+	private TMP_InputField answerInputField;
 
-	void Awake()
+	// create a new connection to the database
+	private MySqlConnection GetConnection()
 	{
-		DontDestroyOnLoad(this.gameObject);
-		
-
-
-		//var con2 = new MySqlConnection(connectionString);
-		//con2.Open();
-
-		try
-		{
-			con = new MySqlConnection(connectionString);
-			con.Open();
-			var something = con.State;
-			Debug.Log("Mysql state: " + con.State);
-
-
-			var query = String.Format("SELECT COUNT(LocationId) FROM aceddwh.dimlocation where locationid = 1;");
-
-
-			cmd = new MySqlCommand(query, con);
-			object result = cmd.ExecuteScalar();
-
-			con.Close();
-		}
-		catch (Exception e)
-		{
-			Debug.Log(e);
-		}
+		return new MySqlConnection(connectionString);
 	}
 
 	private void Start()
 	{
 		//Adds a listener to the main input field and invokes a method when the value changes.
-		answerInput.onValueChanged.AddListener(delegate { AnswerChangeCheck(); });
+		answerInputField.onValueChanged.AddListener(delegate { DimLocationToNames(AnswerChangeCheck(answerInputField.text)); });
 	}
 
-	public void AnswerChangeCheck()
+	private List<string> DimLocationToNames(List<dimlocation> entityList)
 	{
-		//string sql = "SELECT * FROM dimlocation" +
-		//	"			WHERE Name Like" + answerInput.text + "%";
+		List<string> nameList = new List<string>();
 
-		//var query = String.Format("SELECT * FROM aceddwh.dimlocation WhHERE Name Like {0}  ", "'Vlielan%'");
-
-		var connection = new MySqlConnection(connectionString);
-
-		using (connection)
+		foreach(dimlocation location in entityList)
 		{
-			connection.Open();
-			var query = String.Format("SELECT COUNT(LocationId) FROM aceddwh.dimlocation where locationid = 1;");
+			nameList.Add(location.Name);
+		}
 
+		Debug.Log(nameList);
+		return nameList;
+	}
 
-			//var cmd2 = connection.CreateCommand();
-			//cmd2.CommandText = query;
-			//cmd2.CommandType = CommandType.Text;
-			//cmd2.CommandTimeout = 60;
-			//var reader = cmd2.ExecuteReader();
+	public List<dimlocation> AnswerChangeCheck(string answerTextInput)
+	{
+		var list = new List<dimlocation>();
 
-			cmd = new MySqlCommand(query, connection);
-			object result = cmd.ExecuteScalar();
+		using (con = GetConnection())
+		{
+			con.Open();
 
+			Debug.Log(con.State);
+			//var query = string.Format("SELECT * FROM WHERE Name LIKE {0}% ORDER BY Name", answerTextInput);
+			var query = string.Format("SELECT * FROM aceddwh.dimlocation;");
+			var cmd = new MySqlCommand(query, con);
 
-
-
-			try
+			using (rdr = cmd.ExecuteReader())
 			{
-				
-
-
-
-
-				if (rdr.HasRows)
+				while (rdr.Read())
 				{
-					while (rdr.Read())
+					list.Add(new dimlocation()
 					{
-						//string r = Convert.ToString(result);
-						//autocorrectText.text = r;
-					}
+						LocationId = Convert.ToInt32(rdr["LocationId"]),
+						Name = rdr["Name"].ToString()
+					});
 				}
 			}
-			catch (Exception ex)
-			{
-				Console.WriteLine(ex.ToString());
-			}
-
-			Debug.Log(connection.State);
 		}
 
+		return list;
 	}
 
-	void onApplicationQuit()
-	{
-		if (con != null)
+		void onApplicationQuit()
 		{
-			if (con.State.ToString() != "Closed")
+			if (con != null)
 			{
-				con.Close();
-				Debug.Log("Mysql connection closed");
+				if (con.State.ToString() != "Closed")
+				{
+					con.Close();
+					Debug.Log("Mysql connection closed");
+				}
+				con.Dispose();
 			}
-			con.Dispose();
 		}
-	}
 
 	
 
