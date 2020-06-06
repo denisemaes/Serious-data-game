@@ -30,6 +30,7 @@ public class UI : MonoBehaviour
             answers[i].text = QD.questions[QD.index].answers[i];
         }
         questionText.text = QD.questions[index].articleText;
+        headlineText.text = QD.questions[index].headline;
     }
 
     public void OnStartButton()
