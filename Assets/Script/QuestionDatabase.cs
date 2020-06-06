@@ -5,30 +5,18 @@ using UnityEngine.SceneManagement;
 
 public class QuestionDatabase : MonoBehaviour
 {
+    [SerializeField] UI UI;
     public List<Question> questions;
-    [SerializeField]
-    UI UI;
-    int index;
+    public int index;
 
     private void Start()
     {
+        DontDestroyOnLoad(this);
         FirstQuestion();
     }
 
-    public void FirstQuestion()
+    void FirstQuestion()
     {
         UI.UpdateQuestionText(0);
-    }
-
-    public void NextQuestion()
-    {
-        UI.answerInputField.text = "";
-        index++;
-        UI.UpdateQuestionText(index);
-    }
-
-    public void OnSubmitButton()
-    {
-        SceneManager.LoadScene("AverageScene");
     }
 }

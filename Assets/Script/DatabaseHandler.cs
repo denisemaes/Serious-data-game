@@ -6,16 +6,16 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using TMPro;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-using TMPro;
 
 public class DatabaseHandler : MonoBehaviour
 {
-	private string connectionString = "server=localhost;port=3306;database=Aceddwh;user=ACEDuser;password=Hxq3zK81Qwp!;CharSet=utf8;Connection Timeout=60";
+	private string connectionString = "server=localhost;port=3306;database=AcedDWH;user=ACEDuser;password=Hxq3zK81Qwp!;CharSet=utf8;Connection Timeout=60";
 	private MySqlConnection con = null;
 	private MySqlCommand cmd = null;
-	private MySqlDataReader rdr = null;
+	private MySqlDataReader reader = null;
 
 	[SerializeField]
 	private TextMeshProUGUI autocorrectText;
@@ -56,18 +56,34 @@ public class DatabaseHandler : MonoBehaviour
 			con.Open();
 
 			Debug.Log(con.State);
+
+			string setcharset = "SET NAMES 'utf8'"; // <-- !!
+			MySqlCommand charsetcmd = new MySqlCommand(setcharset, con);
+			MySqlDataReader charsetrdr = charsetcmd.ExecuteReader();
+			charsetrdr.Close();
+
 			//var query = string.Format("SELECT * FROM WHERE Name LIKE {0}% ORDER BY Name", answerTextInput);
-			var query = string.Format("SELECT * FROM aceddwh.dimlocation;");
+			var query = "SELECT * FROM aceddwh.dimlocation;";
 			var cmd = new MySqlCommand(query, con);
 
-			using (rdr = cmd.ExecuteReader())
+			using (reader = cmd.ExecuteReader())
 			{
-				while (rdr.Read())
+				while (reader.Read())
 				{
 					list.Add(new dimlocation()
 					{
-						LocationId = Convert.ToInt32(rdr["LocationId"]),
-						Name = rdr["Name"].ToString()
+						LocationId = Convert.ToInt32(reader["LocationId"]),
+						ParentId = Convert.ToInt32(reader["ParentId"]),
+						LevelId = Convert.ToInt32(reader["LevelId"]),
+						Code = reader["Code"].ToString(),
+						Name = reader["Name"].ToString(),
+						Abbreviation = reader["Abbreviation"].ToString(),
+						Population = Convert.ToInt32(reader["Population"] ?? 0),
+						Geometry = reader["Geometry"].ToString(),
+						IsActive = Convert.ToBoolean(reader["IsActive"]),
+						FlagPlaceDouble = Convert.ToBoolean(reader["FlagPlaceDouble"]),
+						FlagMunicipalityDouble = Convert.ToBoolean(reader["FlagMunicipalityDouble"]),
+						FlagProvinceDouble = Convert.ToBoolean(reader["FlagProvinceDouble"])
 					});
 				}
 			}

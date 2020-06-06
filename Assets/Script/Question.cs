@@ -5,7 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class Question
 {   
-    public string question;
-    public string answer;
-   
+    public string headline;
+    public string articleText;
+    public string[] answers;
+    public int correctToggle;
+    public string answerExplanation;
 }
